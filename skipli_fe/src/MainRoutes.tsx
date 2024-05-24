@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // Import Service pages
 import Services from "./routes/ServiceTab/Services";
@@ -9,12 +9,15 @@ import GetInspired from "./routes/ServiceTab/GetInspired";
 import Profile from "./routes/ProfileTab/Profile";
 
 // Import another pages
-import Login from "./routes/Login";
+import Login from "./routes/Login/Login";
 import NotFound from "./routes/NotFound";
 
 function MainRoutes() {
   return (
     <Routes>
+      {/* Default route */}
+      <Route path="/" element={<Navigate to="/log-in" />} />
+
       {/* Login page */}
       <Route path="/log-in" element={<Login />} />
 

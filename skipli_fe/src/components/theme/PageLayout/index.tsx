@@ -6,7 +6,7 @@ interface Props {
 
 const PageLayout = ({ children, title, desc }: Props) => {
   return (
-    <div className="flex flex-col h-full gap-4 py-24 px-10">
+    <div className="flex flex-col h-full gap-4 py-24 px-10 w-2/3">
       <h1 className="text-2xl font-bold">{title}</h1>
       <p className="text-lg text-gray-500 mb-4">{desc}</p>
       {children}

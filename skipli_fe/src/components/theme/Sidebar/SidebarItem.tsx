@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { Link } from "react-router-dom";
 
 type Props = {
-  icon: IconType;
+  icon?: IconType;
   label: string;
   active?: boolean;
   href: string;
@@ -18,7 +18,7 @@ const SidebarItem = ({ icon: Icon, label, active, href }: Props) => {
         active && "bg-neutral-400 rounded-lg px-2",
       )}
     >
-      <Icon size={26} />
+      {Icon && <Icon size={24} />}
       <p className="truncate w-full">{label}</p>
     </Link>
   );

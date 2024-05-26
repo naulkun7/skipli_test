@@ -5,9 +5,11 @@ import CountryCode from "../../assets/CountryCodes.json";
 type Props = {
   type: string;
   value?: string;
-  setValue: (value: any) => void;
+  setValue?: (value: any) => void;
   countryCode?: string;
-  setCountryCode: (countryCode: string) => void;
+  setCountryCode?: (countryCode: string) => void;
+  placeholder?: string;
+  options?: string[];
 };
 
 const Input = ({
@@ -16,13 +18,25 @@ const Input = ({
   setValue,
   countryCode,
   setCountryCode,
+  placeholder,
+  options,
 }: Props) => {
   const handleCountryCodeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setCountryCode(e.target.value);
+    if (setCountryCode) {
+      setCountryCode(e.target.value);
+    }
   };
 
   const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
+    if (setValue) {
+      setValue(e.target.value);
+    }
+  };
+
+  const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    if (setValue) {
+      setValue(e.target.value);
+    }
   };
 
   return (
@@ -63,6 +77,28 @@ const Input = ({
           type="number"
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           placeholder="Enter your access code"
+          value={value}
+          onChange={handleValueChange}
+        />
+      )}
+      {type === "select" && options && (
+        <select
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          value={value}
+          onChange={handleSelectChange}
+        >
+          {options.map((option: string) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      )}
+      {type === "text" && (
+        <input
+          type="text"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          placeholder={placeholder}
           value={value}
           onChange={handleValueChange}
         />

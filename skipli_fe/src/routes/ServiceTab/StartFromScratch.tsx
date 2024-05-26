@@ -18,19 +18,19 @@ const StartFromScratch = (props: Props) => {
         icon={FaFacebookSquare}
         label="Facebook post"
         desc="Generate caption for a post"
-        href="#"
+        href="/services/start-from-scratch/generate-caption?socialNetwork=facebook"
       />
       <Card
         icon={FaInstagram}
         label="Instagram post"
         desc="Generate caption for a post"
-        href="#"
+        href="/services/start-from-scratch/generate-caption?socialNetwork=instagram"
       />
       <Card
         icon={FaTwitterSquare}
         label="Twitter post"
         desc="Generate caption for a post"
-        href="#"
+        href="/services/start-from-scratch/generate-caption?socialNetwork=twitter"
       />
     </PageLayout>
   );

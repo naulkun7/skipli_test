@@ -6,6 +6,7 @@ import Services from "./ServiceTab/Services";
 import StartFromScratch from "./ServiceTab/StartFromScratch";
 import GetInspired from "./ServiceTab/GetInspired";
 import GenerateCaptionForm from "./ServiceTab/GenerateCaptionForm";
+import GenerateIdeasForm from "./ServiceTab/GenerateCaptionFromIdea";
 
 // Import Profile pages
 import Profile from "./ProfileTab/Profile";
@@ -39,6 +40,10 @@ const MainRoutes: React.FC = () => {
       <Route
         path="/services/get-inspired"
         element={<PrivateRoute element={<GetInspired />} />}
+      />
+      <Route
+        path="/services/get-inspired/generate-ideas"
+        element={<PrivateRoute element={<GenerateIdeasForm />} />}
       />
 
       {/* Profile Tab */}

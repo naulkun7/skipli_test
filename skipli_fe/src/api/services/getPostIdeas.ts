@@ -1,8 +1,14 @@
 import client from "../client";
 
-export const getPostIdeas = async (topic: string) => {
+interface GetPostIdeasResponse {
+  ideas: string[];
+}
+
+export const getPostIdeas = async (params: {
+  topic: string;
+}): Promise<GetPostIdeasResponse> => {
   const response = await client.post("getPostIdeas", {
-    json: { topic },
+    json: params,
   });
   return response.json();
 };

@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { createCaptionsFromIdeas, saveGeneratedContent } from "../../api";
+import { parseCaptions } from "../../utils/parseCaptions";
 
-// API
-import { generatePostCaptions, saveGeneratedContent } from "../../api";
-
-// Content
-import Content from "../../assets/GeneratePostCaption.json";
-
-// Components
 import PageLayout from "../../components/theme/PageLayout";
-import Input from "../../components/shared/Input";
 import Button from "../../components/shared/Button";
 import PostCard from "../../components/shared/PostCard";
 import {
@@ -19,39 +13,33 @@ import {
   EmailIcon,
 } from "react-share";
 
-// Utils
-import { parseCaptions } from "../../utils/parseCaptions";
-
-const GenerateCaptionForm: React.FC = () => {
+function GenerateIdea() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const socialNetworkParam = params.get("socialNetwork");
-  const [socialNetwork, setSocialNetwork] = useState(
-    socialNetworkParam ?? "facebook",
-  );
-  const [topic, setTopic] = useState("");
-  const [tone, setTone] = useState("Friendly");
+  const topicParam = params.get("topic");
+  const ideaParam = params.get("idea");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [topic, setTopic] = useState(topicParam ?? "");
+  const [idea, setIdea] = useState(ideaParam ?? "");
   const [captions, setCaptions] = useState<string[]>([]);
 
   useEffect(() => {
-    if (socialNetworkParam) {
-      setSocialNetwork(socialNetworkParam);
+    if (topicParam && ideaParam) {
+      setTopic(topicParam);
+      setIdea(ideaParam);
     }
-  }, [socialNetworkParam]);
+  }, [topicParam, ideaParam]);
 
-  const handleGenerateCaptions = async () => {
+  const handleGenerationCaptionFromIdea = async () => {
     setLoading(true);
     try {
-      const response = (await generatePostCaptions({
-        socialNetwork,
-        subject: topic,
-        tone,
-      })) as { captions: string[] };
+      const response = (await createCaptionsFromIdeas(idea)) as {
+        captions: string[];
+      };
+      console.log(response);
       setCaptions(response.captions);
     } catch (err) {
-      setError("Failed to generate captions. Please try again.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -72,7 +60,6 @@ const GenerateCaptionForm: React.FC = () => {
   };
 
   const renderCaptions = () => {
-    // console.log(captions);
     const parsedCaptions = parseCaptions(captions);
     const shareUrl = "http://github.com";
 
@@ -95,7 +82,7 @@ const GenerateCaptionForm: React.FC = () => {
               </FacebookShareButton>
               <EmailShareButton
                 url={caption}
-                subject={`Check out the post created for ${socialNetwork}`}
+                subject={`Check out the post created from ${idea}`}
               >
                 <EmailIcon size={32} round />
               </EmailShareButton>
@@ -114,35 +101,16 @@ const GenerateCaptionForm: React.FC = () => {
 
   return (
     <PageLayout
-      title={`${socialNetwork} Post`}
-      className="justify-center items-center w-full"
+      title="Get Inspired"
+      desc={`TOPIC: "${topic} || IDEA: "${idea}"`}
     >
-      <div className="flex flex-col gap-y-2">
-        <h3 className="text-lg">What topic do you want a caption for?</h3>
-        <Input
-          type="text"
-          value={topic}
-          setValue={setTopic}
-          placeholder="Enter your topic"
-        />
-      </div>
-      <div className="flex flex-col gap-y-2">
-        <h3 className="text-lg">What should your caption sound like?</h3>
-        <Input
-          type="select"
-          value={tone}
-          setValue={setTone}
-          options={Content.tone}
-        />
-      </div>
       <Button
-        onClick={handleGenerateCaptions}
-        disabled={loading}
+        onClick={handleGenerationCaptionFromIdea}
         className="w-fit"
+        disabled={loading}
       >
         {loading ? "Generating..." : "Generate"}
       </Button>
-      {error && <p className="error">{error}</p>}
 
       <h2 className="text-2xl font-bold">Captions generated for you</h2>
       <div className="h-full overflow-y-auto">
@@ -157,6 +125,5 @@ const GenerateCaptionForm: React.FC = () => {
       </div>
     </PageLayout>
   );
-};
-
-export default GenerateCaptionForm;
+}
+export default GenerateIdea;

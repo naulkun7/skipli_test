@@ -13,7 +13,7 @@ const Services = (props: Props) => {
       <Card
         label="Get inspired"
         desc="Generate post ideas and captions for a topic"
-        href="#"
+        href="/services/get-inspired"
       />
     </PageLayout>
   );

@@ -19,7 +19,7 @@ async function startChat(messages) {
   const chat = model.startChat({
     history: messages,
     generationConfig: {
-      maxOutputTokens: 100,
+      maxOutputTokens: 200,
     },
   });
   return chat;
@@ -55,7 +55,14 @@ app.post("/api/generatePostCaptions", async (req, res) => {
 app.post("/api/getPostIdeas", async (req, res) => {
   const { topic } = req.body;
   const messages = [
-    { role: "user", parts: [{ text: `Generate post ideas about ${topic}.` }] },
+    {
+      role: "user",
+      parts: [
+        {
+          text: `Generate a bulleted list of items 10 post ideas about ${topic}. Each idea just need 1 sentence, should be unique and start with index number. (Do not need to go into detail, just a brief idea.). Start with the first idea.`,
+        },
+      ],
+    },
   ];
 
   try {

@@ -6,12 +6,6 @@ import { parseCaptions } from "../../utils/parseCaptions";
 import PageLayout from "../../components/theme/PageLayout";
 import Button from "../../components/shared/Button";
 import PostCard from "../../components/shared/PostCard";
-import {
-  FacebookShareButton,
-  EmailShareButton,
-  FacebookIcon,
-  EmailIcon,
-} from "react-share";
 
 function GenerateIdea() {
   const location = useLocation();
@@ -74,26 +68,12 @@ function GenerateIdea() {
           <h4 className="text-lg italic mb-2 text-gray-500">{section.title}</h4>
         )}
         {section.captions.map((caption, i) => (
-          <PostCard key={i}>
-            <p>{caption}</p>
-            <div className="flex gap-x-2 mt-2 items-center justify-end">
-              <FacebookShareButton url={shareUrl}>
-                <FacebookIcon size={32} round />
-              </FacebookShareButton>
-              <EmailShareButton
-                url={caption}
-                subject={`Check out the post created from ${idea}`}
-              >
-                <EmailIcon size={32} round />
-              </EmailShareButton>
-              <Button
-                onClick={() => handleSaveCaption([caption])}
-                className="w-fit py-2 h-fit"
-              >
-                Save
-              </Button>
-            </div>
-          </PostCard>
+          <PostCard
+            key={i}
+            caption={caption}
+            shareUrl={shareUrl}
+            onClick={() => handleSaveCaption([caption])}
+          />
         ))}
       </div>
     ));

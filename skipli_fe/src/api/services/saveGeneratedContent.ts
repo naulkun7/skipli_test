@@ -10,7 +10,11 @@ export const saveGeneratedContent = async ({
   data,
 }: SaveGeneratedContentRequest) => {
   const response = await client.post("saveGeneratedContent", {
-    json: { topic, data },
+    json: {
+      topic,
+      data,
+      userIdentifier: localStorage.getItem("userContact"),
+    },
   });
   return response.json();
 };

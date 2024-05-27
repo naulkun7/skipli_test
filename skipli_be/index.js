@@ -13,7 +13,7 @@ app.use(cors());
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// open chat with Gemini
+// Open chat with Gemini and set Token
 async function startChat(messages) {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   const chat = model.startChat({
@@ -101,10 +101,12 @@ app.post("/api/createCaptionsFromIdeas", async (req, res) => {
 
 // (POST) SaveGeneratedContent
 app.post("/api/saveGeneratedContent", async (req, res) => {
-  const { topic, data } = req.body;
+  const { topic, data, userIdentifier } = req.body; // Include userIdentifier in the request body
 
   try {
-    await db.collection("generatedContents").add({ topic, data });
+    await db
+      .collection("generatedContents")
+      .add({ topic, data, userIdentifier });
     res.status(200).send({ success: true });
   } catch (error) {
     console.error("Error saving generated content:", error);
@@ -114,12 +116,12 @@ app.post("/api/saveGeneratedContent", async (req, res) => {
 
 // (GET) GetUserGeneratedContents
 app.get("/api/getUserGeneratedContents", async (req, res) => {
-  const { phone_number } = req.query;
+  const { userIdentifier } = req.query; // Use userIdentifier in the query parameters
 
   try {
     const snapshot = await db
       .collection("generatedContents")
-      .where("phone_number", "==", phone_number)
+      .where("userIdentifier", "==", userIdentifier)
       .get();
     const contents = snapshot.docs.map((doc) => doc.data());
     res.status(200).send(contents);
@@ -158,7 +160,7 @@ function isValidEmail(email) {
   );
 }
 
-// Route to create a new access code and send via SMS
+// (POST) Create a new access code and send via SMS
 app.post("/api/sendAccessCodeViaPhone", async (req, res) => {
   const { phoneNumber } = req.body;
 
@@ -169,10 +171,8 @@ app.post("/api/sendAccessCodeViaPhone", async (req, res) => {
   const accessCode = generateAccessCode();
 
   try {
-    // Save access code to Firebase
     await db.collection("accessCodes").doc(phoneNumber).set({ accessCode });
 
-    // Send access code via SMS using Twilio
     await twilioClient.messages.create({
       body: `Your access code is ${accessCode}`,
       from: process.env.TWILIO_PHONE_NUMBER,
@@ -186,7 +186,7 @@ app.post("/api/sendAccessCodeViaPhone", async (req, res) => {
   }
 });
 
-// Route to create a new access code and send via Email
+// (POST) Create a new access code and send via Email
 app.post("/api/sendAccessCodeViaEmail", async (req, res) => {
   const { email } = req.body;
 
@@ -197,10 +197,8 @@ app.post("/api/sendAccessCodeViaEmail", async (req, res) => {
   const accessCode = generateAccessCode();
 
   try {
-    // Save access code to Firebase
     await db.collection("accessCodes").doc(email).set({ accessCode });
 
-    // Send access code via Email using Nodemailer
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -226,7 +224,7 @@ app.post("/api/sendAccessCodeViaEmail", async (req, res) => {
   }
 });
 
-// Route to validate an access code
+// (POST) Validate an access code
 app.post("/api/validateAccessCode", async (req, res) => {
   const { accessCode, phoneNumber, email } = req.body;
 
@@ -238,14 +236,12 @@ app.post("/api/validateAccessCode", async (req, res) => {
         return res.status(400).send({ error: "Invalid phone number" });
       }
 
-      // Retrieve access code from Firebase using phone number
       doc = await db.collection("accessCodes").doc(phoneNumber).get();
     } else if (email) {
       if (!isValidEmail(email)) {
         return res.status(400).send({ error: "Invalid email address" });
       }
 
-      // Retrieve access code from Firebase using email
       doc = await db.collection("accessCodes").doc(email).get();
     } else {
       return res
@@ -261,9 +257,7 @@ app.post("/api/validateAccessCode", async (req, res) => {
 
     const savedAccessCode = doc.data().accessCode;
 
-    // Validate access code
     if (savedAccessCode === accessCode) {
-      // Clear the access code after successful validation
       await db
         .collection("accessCodes")
         .doc(phoneNumber || email)
@@ -279,8 +273,6 @@ app.post("/api/validateAccessCode", async (req, res) => {
     res.status(500).send({ error: "Failed to validate access code" });
   }
 });
-
-// Gemini
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

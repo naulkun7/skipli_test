@@ -62,8 +62,8 @@ const Profile = (props: Props) => {
       desc={`User: "${userIdentifier}"`}
       className="items-center w-full"
     >
-      <div className="flex flex-col gap-y-4">
-        <h2 className="capitalize text-2xl font-bold">Saved content</h2>
+      <h2 className="capitalize text-2xl font-bold">Saved content</h2>
+      <div className="flex flex-col gap-y-4 h-full overflow-y-auto">
         {loading && <p>Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
         {Object.keys(groupedContents).length

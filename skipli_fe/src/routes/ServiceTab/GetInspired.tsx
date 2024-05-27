@@ -12,70 +12,6 @@ interface PostIdea {
   contents: string[];
 }
 
-const parsePostIdeas = (rawIdeas: string[]): PostIdea => {
-  const mainTitlePattern = /^##\s*(.*)$/;
-  const contentPattern1 = /^\*\*\d+\.\s*"(.*)"\*\*\s*-\s*(.*)$/;
-  const contentPattern2 = /^\*\*\d+\.\s*"(.*)":\*\*$/;
-  const contentPattern3 = /^\*\*\d+\.\s*(.*?):\*\*\s*(.*)$/;
-  const subContentPattern = /^\*\s*(.*)$/;
-
-  let mainTitle = "";
-  const contents: string[] = [];
-  let currentContent = "";
-
-  rawIdeas.forEach((line) => {
-    const trimmedLine = line.trim();
-    if (mainTitlePattern.test(trimmedLine)) {
-      const match = mainTitlePattern.exec(trimmedLine);
-      if (match) {
-        mainTitle = match[1];
-      }
-    } else if (contentPattern1.test(trimmedLine)) {
-      const match = contentPattern1.exec(trimmedLine);
-      if (match) {
-        if (currentContent) {
-          contents.push(currentContent);
-          currentContent = "";
-        }
-        currentContent = `${match[1]} - ${match[2]}`;
-      }
-    } else if (contentPattern2.test(trimmedLine)) {
-      const match = contentPattern2.exec(trimmedLine);
-      if (match) {
-        if (currentContent) {
-          contents.push(currentContent);
-          currentContent = "";
-        }
-        currentContent = match[1];
-      }
-    } else if (contentPattern3.test(trimmedLine)) {
-      const match = contentPattern3.exec(trimmedLine);
-      if (match) {
-        if (currentContent) {
-          contents.push(currentContent);
-          currentContent = "";
-        }
-        currentContent = `${match[1]} - ${match[2]}`;
-      }
-    } else if (subContentPattern.test(trimmedLine)) {
-      const match = subContentPattern.exec(trimmedLine);
-      if (match) {
-        currentContent += ` ${match[1]}`;
-      }
-    } else if (trimmedLine) {
-      if (currentContent) {
-        currentContent += ` ${trimmedLine}`;
-      }
-    }
-  });
-
-  if (currentContent) {
-    contents.push(currentContent);
-  }
-
-  return { mainTitle, contents };
-};
-
 const GetInspired: React.FC = () => {
   const [topic, setTopic] = useState("");
   const [postIdea, setPostIdea] = useState<PostIdea | null>(null);
@@ -87,9 +23,11 @@ const GetInspired: React.FC = () => {
     setError("");
     try {
       const response = await getPostIdeas({ topic });
-      const cleanedIdeas = response.ideas.filter((idea) => idea.trim() !== "");
-      const parsedIdeas = parsePostIdeas(cleanedIdeas);
-      setPostIdea(parsedIdeas);
+      if (response && response.ideas && response.ideas.length > 0) {
+        const mainTitle = response.ideas[0];
+        const contents = response.ideas.slice(2); // Skip the first two entries as the first is the title and the second is empty
+        setPostIdea({ mainTitle, contents });
+      }
     } catch (err) {
       setError("Failed to generate ideas. Please try again.");
     } finally {
@@ -123,7 +61,7 @@ const GetInspired: React.FC = () => {
       </div>
 
       {postIdea && (
-        <div className="mt-8">
+        <div className="mt-8 h-full overflow-y-auto">
           <h2 className="font-bold text-xl">{postIdea.mainTitle}</h2>
           <div className="flex flex-col gap-y-4">
             {postIdea.contents.map((content, index) => (
@@ -132,6 +70,7 @@ const GetInspired: React.FC = () => {
                 label={`Idea ${index + 1}`}
                 desc={content}
                 href={`/services/get-inspired/generate-ideas?topic=${topic}&idea=${content}`}
+                className="w-full"
               />
             ))}
           </div>
